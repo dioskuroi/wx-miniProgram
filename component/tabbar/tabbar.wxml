@@ -1,0 +1,8 @@
+<scroll-view 
+  class="tab-wrapper"
+  scroll-x="{{true}}"
+  >
+  <view class="tab-list" bindtap="handleTapTab">
+    <view data-id="{{item.id}}" data-index="{{index}}" wx:for="{{channel}}" class="tab-item {{ currentIndex === index ? 'tab-item-active' : '' }}" wx:key="index">{{item.name}}</view>
+  </view>
+</scroll-view>

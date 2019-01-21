@@ -1,0 +1,27 @@
+<view data-goods-id="{{goods.id}}" class="goods-wrapper" bindtap="seeGoodsDetail">
+  <view class="goods-img-wrapper">
+    <slot></slot>
+    <view class="goods-label" wx:if="{{goods.isNew || goods.isHot}}">
+      <view class="label-content font10" wx:if="{{goods.isNew}}">新品</view>
+      <view class="label-content font10" wx:if="{{goods.isHot}}">热销</view>
+    </view>
+  </view>
+  <view class="goods-info">
+    <view class="goods-title">{{goods.name}}</view>
+    <view class="goods-quantity">
+      <i class="iconfont icon-huo"></i>
+      <view class="sold font10">累计售489份</view>
+      <view class="rest font10">/ 剩余1010份</view>
+    </view>
+    <view class="bottom">
+      <view class="price">
+        <view class="current">¥{{goods.retailPrice}}</view>
+        <view class="prev">¥{{goods.counterPrice}}</view>
+      </view>
+      <view class="purchase">
+        <i class="iconfont icon-cart"></i>
+      </view>
+    </view>
+  </view>
+</view>
+

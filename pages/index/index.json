@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "卿果派",
+  "usingComponents": {
+    "zan-capsule": "../../lib/zanui-weapp/capsule/index",
+    "tab-bar": "../../component/tabbar/tabbar",
+    "goods": "../../component/goods/goods"
+  }
+}

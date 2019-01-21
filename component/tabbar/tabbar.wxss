@@ -1,0 +1,27 @@
+/* component/tabbar.wxss */
+.tab-wrapper {
+  margin-top: 20rpx;
+  height: 60rpx;
+  background: #fff;
+  line-height: 60rpx;
+}
+
+.tab-list {
+  display: flex;
+  justify-content: flex-start;
+  height: 60rpx;
+}
+
+.tab-item {
+  font-size: 28rpx;
+  padding: 0 10rpx;
+  margin: 0 10rpx;
+  height: 60rpx;
+  white-space: nowrap;
+}
+
+.tab-item-active {
+  color: purple;
+  font-weight: 700;
+  border-bottom: 4rpx solid purple;
+}
