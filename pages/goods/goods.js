@@ -108,9 +108,13 @@ Page({
   // 获取商品信息
   getGoodsInfo: function() {
     let that = this;
+    wx.showLoading({
+      title: '加载中...'
+    })
     util.request(api.GoodsDetail, {
       id: that.data.id
     }).then(function(res) {
+      wx.hideLoading()
       if (res.errno === 0) {
 
         let _specificationList = res.data.specificationList
@@ -178,6 +182,8 @@ Page({
         //获取推荐商品
         that.getGoodsRelated();
       }
+    }).catch(e => {
+      wx.hideLoading()
     });
   },
 

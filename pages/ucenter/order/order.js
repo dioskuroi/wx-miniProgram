@@ -28,15 +28,21 @@ Page({
 
   getOrderList() {
     let that = this;
+    wx.showLoading({
+      title: '加载中...'
+    })
     util.request(api.OrderList, {
       showType: that.data.showType
     }).then(function(res) {
+      wx.hideLoading()
       if (res.errno === 0) {
         console.log(res.data);
         that.setData({
           orderList: res.data.data
         });
       }
+    }).catch(e => {
+      wx.hideLoading()
     });
   },
   switchTab: function(event) {

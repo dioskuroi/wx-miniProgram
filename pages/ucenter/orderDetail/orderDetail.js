@@ -31,17 +31,14 @@ Page({
   },
   getOrderDetail: function() {
     wx.showLoading({
-      title: '加载中',
+      title: '加载中...',
     });
-
-    setTimeout(function() {
-      wx.hideLoading()
-    }, 2000);
 
     let that = this;
     util.request(api.OrderDetail, {
       orderId: that.data.orderId
     }).then(function(res) {
+      wx.hideLoading()
       if (res.errno === 0) {
         console.log(res.data);
         that.setData({
@@ -51,7 +48,7 @@ Page({
           expressInfo: res.data.expressInfo
         });
       }
-
+    }).catch(e => {
       wx.hideLoading();
     });
   },

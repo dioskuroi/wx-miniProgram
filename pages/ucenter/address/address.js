@@ -18,12 +18,18 @@ Page({
   },
   getAddressList() {
     let that = this;
+    wx.showLoading({
+      title: '加载中...'
+    })
     util.request(api.AddressList).then(function(res) {
+      wx.hideLoading()
       if (res.errno === 0) {
         that.setData({
           addressList: res.data
         });
       }
+    }).catch(e => {
+      wx.hideLoading()
     });
   },
   addressAddOrUpdate(event) {

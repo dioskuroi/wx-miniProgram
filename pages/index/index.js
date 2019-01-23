@@ -17,15 +17,18 @@ Page({
     channel: [],
     coupon: [],
     // 自定义
-    goodsList: []
+    goodsList: [],
+    currentChannel: 0,
+    page: 1,
+    size: 100
   },
 
   // 切换 tab
   changeChannel({ detail: { channelId } }) {
-    const goodsList = this.data.floorGoods.find(item => item.id === channelId) ? this.data.floorGoods.find(item => item.id === channelId).goodsList : []
     this.setData({
-      goodsList
+      currentChannel: channelId
     })
+    this.getGoodsList()
   },
 
   seeGoodsDetail(e) {
@@ -50,8 +53,18 @@ Page({
 
   getIndexData: function() {
     let that = this;
-    util.request(api.IndexUrl).then(function(res) {
+    wx.showLoading({
+      title: '加载中...'
+    })
+    util.request(api.IndexUrl).then((res) => {
+      wx.hideLoading()
       if (res.errno === 0) {
+        // let goodsList
+        // if (that.data.currentChannel) {
+        //   goodsList = res.data.floorGoodsList.find(item => item.id === channelId) ? res.data.floorGoodsList.find(item => item.id === channelId).goodsList : []
+        // } else {
+        //   goodsList = res.data.floorGoodsList[0].goodsList
+        // }
         that.setData({
           newGoods: res.data.newGoodsList,
           hotGoods: res.data.hotGoodsList,
@@ -62,9 +75,11 @@ Page({
           groupons: res.data.grouponList,
           channel: res.data.channel,
           coupon: res.data.couponList,
-          goodsList: res.data.floorGoodsList[0].goodsList
         });
+        this.getGoodsList()
       }
+    }).catch(e => {
+      wx.hideLoading()
     });
   },
   onLoad: function(options) {
@@ -136,6 +151,19 @@ Page({
   },
   onUnload: function() {
     // 页面关闭
+  },
+  getGoodsList: function() {
+    const categoryId = this.data.currentChannel ? this.data.currentChannel : this.data.floorGoods[0].id
+    util.request(api.GoodsList, {
+      categoryId,
+      page: this.data.page,
+      size: this.data.size
+      })
+      .then((res) => {
+        this.setData({
+          goodsList: res.data.goodsList,
+        });
+      });
   },
   setCartBadge() {
     if(app.globalData.hasLogin) {

@@ -54,7 +54,11 @@ Page({
   },
   getCartList: function() {
     let that = this;
+    wx.showLoading({
+      title: '加载中...'
+    })
     util.request(api.CartList).then(function(res) {
+      wx.hideLoading()
       if (res.errno === 0) {
         that.setData({
           cartGoods: res.data.cartList,
@@ -65,6 +69,8 @@ Page({
           checkedAllStatus: that.isCheckedAll()
         });
       }
+    }).catch(e => {
+      wx.hideLoading()
     });
   },
   // 设置 tabbar 的 badge

@@ -79,11 +79,15 @@ Page({
       showPage: false,
       couponList: []
     });
+    wx.showLoading({
+      title: '加载中...'
+    })
     util.request(api.CouponMyList, {
       status: that.data.status,
       page: that.data.page,
       size: that.data.size
     }).then(function(res) {
+      wx.hideLoading()
       if (res.errno === 0) {
 
         that.setData({
@@ -93,6 +97,8 @@ Page({
           count: res.data.count
         });
       }
+    }).catch(e => {
+      wx.hideLoading()
     });
 
   },
