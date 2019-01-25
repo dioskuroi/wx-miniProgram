@@ -24,6 +24,7 @@
   padding-left: 30rpx;
   vertical-align: middle;
   line-height: 60rpx;
+  display: flex;
 }
 
 .icon-weizhi {
@@ -34,6 +35,10 @@
 
 .location-content {
   color: #333;
+  overflow: hidden;
+  width: 320rpx;
+  text-overflow:ellipsis;
+  white-space: nowrap;
 }
 
 .search-wrapper {

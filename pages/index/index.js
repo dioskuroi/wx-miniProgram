@@ -4,6 +4,8 @@ const user = require('../../utils/user.js');
 
 //获取应用实例
 const app = getApp();
+var QQMapWX = require('../../utils/qqmap-wx-jssdk.min.js');
+var qqmapsdk;
 
 Page({
   data: {
@@ -20,15 +22,20 @@ Page({
     goodsList: [],
     currentChannel: 0,
     page: 1,
-    size: 100
+    size: 100,
+    area: '',
+    latitude: '',
+    longitude: ''
   },
 
   // 切换 tab
   changeChannel({ detail: { channelId } }) {
+    const goodsList = this.data.floorGoods.find(item => item.id === channelId) ? this.data.floorGoods.find(item => item.id === channelId).goodsList : []
     this.setData({
-      currentChannel: channelId
+      currentChannel: channelId,
+      goodsList
     })
-    this.getGoodsList()
+    
   },
 
   seeGoodsDetail(e) {
@@ -59,12 +66,12 @@ Page({
     util.request(api.IndexUrl).then((res) => {
       wx.hideLoading()
       if (res.errno === 0) {
-        // let goodsList
-        // if (that.data.currentChannel) {
-        //   goodsList = res.data.floorGoodsList.find(item => item.id === channelId) ? res.data.floorGoodsList.find(item => item.id === channelId).goodsList : []
-        // } else {
-        //   goodsList = res.data.floorGoodsList[0].goodsList
-        // }
+        let goodsList
+        if (that.data.currentChannel) {
+          goodsList = res.data.floorGoodsList.find(item => item.id === channelId) ? res.data.floorGoodsList.find(item => item.id === channelId).goodsList : []
+        } else {
+          goodsList = res.data.floorGoodsList[0].goodsList
+        }
         that.setData({
           newGoods: res.data.newGoodsList,
           hotGoods: res.data.hotGoodsList,
@@ -75,14 +82,19 @@ Page({
           groupons: res.data.grouponList,
           channel: res.data.channel,
           coupon: res.data.couponList,
+          goodsList
         });
-        this.getGoodsList()
+        // this.getGoodsList()
       }
     }).catch(e => {
       wx.hideLoading()
     });
   },
   onLoad: function(options) {
+
+    qqmapsdk = new QQMapWX({
+      key: 'CRHBZ-33PRW-GETRE-OBG4D-CO653-F5FSZ' //这里自己的key秘钥进行填充
+    });
 
     // 页面初始化 options为页面跳转所带来的参数
     if (options.scene) {
@@ -145,6 +157,8 @@ Page({
   onShow: function() {
     // 页面显示
     this.setCartBadge()
+    // 获取用户地理位置
+    this.getUserLocation();
   },
   onHide: function() {
     // 页面隐藏
@@ -152,19 +166,116 @@ Page({
   onUnload: function() {
     // 页面关闭
   },
-  getGoodsList: function() {
-    const categoryId = this.data.currentChannel ? this.data.currentChannel : this.data.floorGoods[0].id
-    util.request(api.GoodsList, {
-      categoryId,
-      page: this.data.page,
-      size: this.data.size
-      })
-      .then((res) => {
-        this.setData({
-          goodsList: res.data.goodsList,
-        });
-      });
+  getUserLocation: function () {
+    let vm = this;
+    wx.getSetting({
+      success: (res) => {
+        console.log(JSON.stringify(res))
+        // res.authSetting['scope.userLocation'] == undefined    表示 初始化进入该页面
+        // res.authSetting['scope.userLocation'] == false    表示 非初始化进入该页面,且未授权
+        // res.authSetting['scope.userLocation'] == true    表示 地理位置授权
+        if (res.authSetting['scope.userLocation'] != undefined && res.authSetting['scope.userLocation'] != true) {
+          wx.showModal({
+            title: '请求授权当前位置',
+            content: '需要获取您的地理位置，请确认授权',
+            success: function (res) {
+              if (res.cancel) {
+                wx.showToast({
+                  title: '拒绝授权',
+                  icon: 'none',
+                  duration: 1000
+                })
+              } else if (res.confirm) {
+                wx.openSetting({
+                  success: function (dataAu) {
+                    if (dataAu.authSetting["scope.userLocation"] == true) {
+                      wx.showToast({
+                        title: '授权成功',
+                        icon: 'success',
+                        duration: 1000
+                      })
+                      //再次授权，调用wx.getLocation的API
+                      vm.getLocation();
+                    } else {
+                      wx.showToast({
+                        title: '授权失败',
+                        icon: 'none',
+                        duration: 1000
+                      })
+                    }
+                  }
+                })
+              }
+            }
+          })
+        } else if (res.authSetting['scope.userLocation'] == undefined) {
+          //调用wx.getLocation的API
+          vm.getLocation();
+        }
+        else {
+          //调用wx.getLocation的API
+          vm.getLocation();
+        }
+      }
+    })
   },
+  // 微信获得经纬度
+  getLocation: function () {
+    let vm = this;
+    wx.getLocation({
+      type: 'wgs84',
+      success: function (res) {
+        console.log(JSON.stringify(res))
+        var latitude = res.latitude
+        var longitude = res.longitude
+        var speed = res.speed
+        var accuracy = res.accuracy;
+        vm.getLocal(latitude, longitude)
+      },
+      fail: function (res) {
+        console.log('fail' + JSON.stringify(res))
+      }
+    })
+  },
+  // 获取当前地理位置
+  getLocal: function (latitude, longitude) {
+    let vm = this;
+    qqmapsdk.reverseGeocoder({
+      location: {
+        latitude: latitude,
+        longitude: longitude
+      },
+      success: function (res) {
+        console.log(res);
+        let area = res.result.formatted_addresses.recommend
+        vm.setData({
+          area,
+          latitude: latitude,
+          longitude: longitude
+        })
+ 
+      },
+      fail: function (res) {
+        console.log(res);
+      },
+      complete: function (res) {
+        // console.log(res);
+      }
+    });
+  },
+  // getGoodsList: function() {
+  //   const categoryId = this.data.currentChannel ? this.data.currentChannel : this.data.floorGoods[0].id
+  //   util.request(api.GoodsList, {
+  //     categoryId,
+  //     page: this.data.page,
+  //     size: this.data.size
+  //     })
+  //     .then((res) => {
+  //       this.setData({
+  //         goodsList: res.data.goodsList,
+  //       });
+  //     });
+  // },
   setCartBadge() {
     if(app.globalData.hasLogin) {
       // var that = this;

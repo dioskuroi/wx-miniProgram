@@ -4,7 +4,7 @@
     <view class="header">
       <view class="loaction">
         <i class="iconfont icon-weizhi"></i>
-        <text class="location-content">上海</text>
+        <view class="location-content">{{ area }}</view>
       </view>
       <view class="search-wrapper">
         <i class="iconfont icon-sousuo"></i>
