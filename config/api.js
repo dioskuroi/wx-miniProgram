@@ -10,6 +10,7 @@ var WxApiRoot = 'https://www.irzvc.cn/wx/';
 
 module.exports = {
   IndexUrl: WxApiRoot + 'home/index', //首页数据接口
+  MoreGoodsInfo: WxApiRoot + 'home/pageById', //商品分页数据
   CatalogList: WxApiRoot + 'catalog/index', //分类目录全部分类数据接口
   CatalogCurrent: WxApiRoot + 'catalog/current', //分类目录当前分类数据接口
 

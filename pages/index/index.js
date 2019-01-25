@@ -25,7 +25,8 @@ Page({
     size: 100,
     area: '',
     latitude: '',
-    longitude: ''
+    longitude: '',
+    isLoading: false,
   },
 
   // 切换 tab
@@ -33,11 +34,39 @@ Page({
     const goodsList = this.data.floorGoods.find(item => item.id === channelId) ? this.data.floorGoods.find(item => item.id === channelId).goodsList : []
     this.setData({
       currentChannel: channelId,
-      goodsList
+      goodsList,
+      page: 1
     })
     
   },
-
+  // 获取更多商品数据
+  getMoreGoodsInfo() {
+    if (this.data.isLoading) return
+    this.data.isLoading = true
+    wx.showLoading({
+      title: '加载中...'
+    })
+    util.request(api.MoreGoodsInfo, {
+      catlogId: this.currentChannel, 
+      pageNum: this.page + 1
+    }).then(res => {
+      this.data.isLoading = false
+      wx.hideLoading()
+      if (res.errno === 0) {
+        this.setData({
+          goodsList: this.goodsList.concat(res.data.goodsList),
+          page: pageNum
+        })
+      }
+    }).catch(e => {
+      this.data.isLoading = false
+      wx.hideLoading()
+    })
+  },
+  // 上拉加载
+  onReachBottom() {
+    this.getMoreGoodsInfo()
+  },
   seeGoodsDetail(e) {
     const id  = e.detail.val
     wx.navigateTo({url: '/pages/goods/goods?id=' + id})
@@ -82,7 +111,8 @@ Page({
           groupons: res.data.grouponList,
           channel: res.data.channel,
           coupon: res.data.couponList,
-          goodsList
+          goodsList,
+          page: 1
         });
         // this.getGoodsList()
       }
